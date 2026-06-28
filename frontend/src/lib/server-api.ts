@@ -54,3 +54,29 @@ export const serverCategoryApi = {
     serverFetch<{ categories: { id: string; name: string; slug: string; imageUrl?: string }[] }>('/categories')
       .catch(() => ({ categories: [] })),
 };
+
+export type ApiSeller = {
+  id: string;
+  store_name: string;
+  slug: string;
+  description?: string;
+  story?: string;
+  tagline?: string;
+  logo_url?: string;
+  banner_url?: string;
+  province: string;
+  region: string;
+  rating?: number;
+  review_count: number;
+  verified: boolean;
+  owner_name?: string;
+  press_mentions?: string; // JSON string: [{source, quote, url}]
+  video_url?: string;
+};
+
+export const serverSellerApi = {
+  getBySlug: (slug: string) =>
+    serverFetch<ApiSeller>(`/sellers/slug/${slug}`).catch(() => null),
+  list: (params?: Record<string, string | number | boolean | undefined>) =>
+    serverFetch<ApiPaginated<ApiSeller>>('/sellers', params).catch(() => ({ sellers: [], total: 0, page: 1, limit: 20 } as ApiPaginated<ApiSeller>)),
+};

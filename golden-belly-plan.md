@@ -10,14 +10,14 @@ Dựa trên phân tích gap so với Goldbelly, đây là roadmap bù gap theo t
 
 | # | Feature | Priority | Status |
 |---|---|---|---|
-| 1 | Delivery date scheduling | 🔴 Critical | ⬜ TODO |
-| 2 | Gift UX (gift note + send-by-email) | 🔴 Critical | ⬜ TODO |
-| 3 | Coupon/voucher wired at checkout | 🔴 Critical | ⬜ TODO |
-| 4 | Logistics & shipping info page | 🟡 High | ⬜ TODO |
-| 5 | Seller storytelling (story, video, press) | 🟡 High | ⬜ TODO |
-| 6 | Search nâng cao (filter region/price/rating) | 🟡 High | ⬜ TODO |
-| 7 | Social proof section (homepage) | 🟡 High | ⬜ TODO |
-| 8 | Wishlist API kết nối thật | 🟢 Medium | ⬜ TODO |
+| 1 | Delivery date scheduling | 🔴 Critical | ✅ DONE |
+| 2 | Gift UX (gift note + send-by-email) | 🔴 Critical | ✅ DONE |
+| 3 | Coupon/voucher wired at checkout | 🔴 Critical | ✅ DONE |
+| 4 | Logistics & shipping info page | 🟡 High | ✅ DONE |
+| 5 | Seller storytelling (story, video, press) | 🟡 High | ✅ DONE |
+| 6 | Search nâng cao (filter region/price/rating) | 🟡 High | ✅ DONE |
+| 7 | Social proof section (homepage) | 🟡 High | ✅ DONE |
+| 8 | Wishlist API kết nối thật | 🟢 Medium | ✅ DONE |
 | 9 | Subscription boxes | 🟢 Medium | ⬜ TODO |
 | 10 | Gift cards | 🟢 Medium | ⬜ TODO |
 

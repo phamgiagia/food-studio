@@ -11,7 +11,7 @@ declare module 'hono' {
   }
 }
 
-export async function authMiddleware(c: Context<{ Bindings: Env }>, next: Next) {
+export async function authMiddleware(c: Context<{ Bindings: Env }>, next: Next): Promise<Response | void> {
   const authorization = c.req.header('Authorization');
   if (!authorization?.startsWith('Bearer ')) {
     return c.json({ data: null, error: { code: 'UNAUTHORIZED', message: 'Missing token' } }, 401);
@@ -32,7 +32,7 @@ export async function authMiddleware(c: Context<{ Bindings: Env }>, next: Next) 
 }
 
 export function requireRole(...roles: UserRole[]) {
-  return async (c: Context<{ Bindings: Env }>, next: Next) => {
+  return async (c: Context<{ Bindings: Env }>, next: Next): Promise<Response | void> => {
     const role = c.get('userRole');
     if (!roles.includes(role)) {
       return c.json({ data: null, error: { code: 'FORBIDDEN', message: 'Insufficient permissions' } }, 403);

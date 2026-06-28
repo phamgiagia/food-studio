@@ -100,3 +100,9 @@ export const reviewApi = {
   list: (productId: string, page?: number) => api.get('/reviews', { product: productId, page }),
   create: (data: unknown) => api.post('/reviews', data),
 };
+
+export const wishlistApi = {
+  list: () => api.get<unknown[]>('/wishlists/me'),
+  add: (productId: string) => api.post('/wishlists', { productId }),
+  remove: (productId: string) => api.delete(`/wishlists/${productId}`),
+};

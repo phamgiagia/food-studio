@@ -13,6 +13,7 @@ import { reviewRoutes } from './routes/reviews';
 import { mediaRoutes } from './routes/media';
 import { adminRoutes } from './routes/admin';
 import { paymentsRouter } from './routes/payments';
+import { wishlistRoutes } from './routes/wishlists';
 import { errorHandler } from './middleware/error';
 import { authMiddleware } from './middleware/auth';
 import { CartDO } from './durable-objects/cart';
@@ -54,6 +55,10 @@ app.use('/v1/media/*', authMiddleware);
 app.route('/v1/orders', orderRoutes);
 app.route('/v1/checkout', checkoutRoutes);
 app.route('/v1/media', mediaRoutes);
+
+// Authenticated routes (cont.)
+app.use('/v1/wishlists/*', authMiddleware);
+app.route('/v1/wishlists', wishlistRoutes);
 
 // Admin routes (auth + role check inside)
 app.route('/v1/admin', adminRoutes);

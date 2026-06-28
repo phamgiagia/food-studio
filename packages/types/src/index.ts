@@ -2,7 +2,7 @@
 // Core entity types shared across frontend, admin, mobile
 // ============================================================
 
-export type UserRole = 'customer' | 'seller' | 'staff' | 'admin' | 'super_admin';
+export type UserRole = 'customer' | 'seller' | 'staff' | 'admin' | 'super_admin' | 'operations' | 'finance' | 'support';
 export type UserStatus = 'active' | 'suspended' | 'pending' | 'deleted';
 
 export interface User {

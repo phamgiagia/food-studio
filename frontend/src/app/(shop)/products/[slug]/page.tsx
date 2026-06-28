@@ -4,6 +4,7 @@ import { StarIcon, MapPinIcon, ClockIcon, ShieldCheckIcon } from '@heroicons/rea
 import { StarIcon as StarSolid } from '@heroicons/react/20/solid';
 import { formatPrice } from '@/lib/utils';
 import { AddToCartButton } from '@/components/product/AddToCartButton';
+import { WishlistButton } from '@/components/product/WishlistButton';
 import { ShippingBadge } from '@/components/product/ShippingBadge';
 import { ReviewList } from '@/components/reviews/ReviewList';
 import { serverProductApi } from '@/lib/server-api';
@@ -142,7 +143,10 @@ export default async function ProductDetailPage({ params }: Props) {
             </div>
           )}
 
-          <AddToCartButton product={cartProduct} />
+          <div className="flex gap-3">
+            <div className="flex-1"><AddToCartButton product={cartProduct} /></div>
+            <WishlistButton productId={p.id} />
+          </div>
           <ShippingBadge />
 
           {/* Trust signals */}
