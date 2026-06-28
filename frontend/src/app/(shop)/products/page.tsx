@@ -101,7 +101,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
                   basePrice: p.base_price, comparePrice: p.compare_price,
                   province: p.province, rating: p.rating_avg, reviewCount: p.review_count,
                   images: (p.images ?? []).map(img => ({ ...img, isPrimary: img.is_primary, id: img.url, sortOrder: 0 })),
-                  variants: p.variants ?? [],
+                  variants: (p.variants ?? []).map(v => ({ ...v, active: true })),
                   seller: p.seller ? { storeName: p.seller.store_name, slug: p.seller.slug } : undefined,
                 }} />
               ))}

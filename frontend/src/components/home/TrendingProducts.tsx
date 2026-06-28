@@ -42,7 +42,7 @@ export async function TrendingProducts() {
               images: (p.images ?? []).map((img: { url: string; alt?: string; is_primary: boolean }) => ({
                 ...img, isPrimary: img.is_primary, id: img.url, sortOrder: 0,
               })),
-              variants: p.variants ?? [],
+              variants: (p.variants ?? []).map((v: { id: string; name: string; price: number; stock: number }) => ({ ...v, active: true })),
             }} />
           ))}
         </div>

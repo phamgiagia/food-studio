@@ -11,10 +11,6 @@ const config: NextConfig = {
     ],
     formats: ['image/avif', 'image/webp'],
   },
-  experimental: {
-    ppr: true,
-    reactCompiler: true,
-  },
 };
 
 export default withNextIntl(config);

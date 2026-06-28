@@ -13,6 +13,16 @@ interface ReviewListProps {
   reviewCount?: number;
 }
 
+interface ApiReview {
+  id: string;
+  full_name: string;
+  rating: number;
+  title?: string;
+  body?: string;
+  helpful: number;
+  created_at: number;
+}
+
 export function ReviewList({ productId, rating = 0, reviewCount = 0 }: ReviewListProps) {
   const [page, setPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
@@ -21,7 +31,7 @@ export function ReviewList({ productId, rating = 0, reviewCount = 0 }: ReviewLis
   const { data, isLoading } = useReviews(productId, page);
   const createReview = useCreateReview();
 
-  const reviews = (data as { data?: unknown[] })?.data ?? [];
+  const reviews = (data as { data?: ApiReview[] })?.data ?? [];
   const meta = (data as { meta?: { totalPages?: number } })?.meta ?? {};
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -133,31 +143,31 @@ export function ReviewList({ productId, rating = 0, reviewCount = 0 }: ReviewLis
         </div>
       ) : (
         <div className="space-y-4">
-          {(reviews as Record<string, unknown>[]).map((review) => (
-            <div key={review['id'] as string} className="p-5 border border-earth-100 rounded-2xl">
+          {reviews.map((review) => (
+            <div key={review.id} className="p-5 border border-earth-100 rounded-2xl">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center font-semibold text-brand-600">
-                    {((review['full_name'] as string) ?? 'U')[0]}
+                    {(review.full_name ?? 'U')[0]}
                   </div>
                   <div>
-                    <div className="font-medium text-earth-800">{review['full_name'] as string}</div>
-                    <StarRating rating={review['rating'] as number} size="sm" />
+                    <div className="font-medium text-earth-800">{review.full_name}</div>
+                    <StarRating rating={review.rating} size="sm" />
                   </div>
                 </div>
                 <span className="text-xs text-earth-400">
-                  {formatDate(review['created_at'] as number)}
+                  {formatDate(review.created_at)}
                 </span>
               </div>
-              {review['title'] && (
-                <div className="font-semibold text-earth-800 mb-1">{review['title'] as string}</div>
+              {review.title && (
+                <div className="font-semibold text-earth-800 mb-1">{review.title}</div>
               )}
-              {review['body'] && (
-                <p className="text-earth-600 text-sm leading-relaxed">{review['body'] as string}</p>
+              {review.body && (
+                <p className="text-earth-600 text-sm leading-relaxed">{review.body}</p>
               )}
               <button className="mt-3 flex items-center gap-1 text-earth-400 hover:text-earth-600 text-xs transition-colors">
                 <HandThumbUpIcon className="w-3.5 h-3.5" />
-                Hữu ích ({review['helpful'] as number})
+                Hữu ích ({review.helpful})
               </button>
             </div>
           ))}

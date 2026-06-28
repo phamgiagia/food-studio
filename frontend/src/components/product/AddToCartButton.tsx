@@ -20,7 +20,6 @@ export function AddToCartButton() {
         slug: 'mam-tom-hue-truyen-thong',
         basePrice: 85000,
         images: [],
-        variants: [],
       },
     });
     toast.success('Đã thêm vào giỏ hàng');

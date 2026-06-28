@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { useRegister } from '@/hooks/useAuth';
 
 const schema = z.object({
-  name: z.string().min(2, 'Tên tối thiểu 2 ký tự'),
+  fullName: z.string().min(2, 'Tên tối thiểu 2 ký tự'),
   email: z.string().email('Email không hợp lệ'),
   password: z.string().min(8, 'Mật khẩu tối thiểu 8 ký tự'),
   confirmPassword: z.string(),
@@ -26,8 +26,8 @@ export default function RegisterPage() {
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = ({ name, email, password }: FormData) => {
-    registerUser({ name, email, password }, {
+  const onSubmit = ({ fullName, email, password }: FormData) => {
+    registerUser({ fullName, email, password }, {
       onSuccess: () => router.push('/'),
     });
   };
@@ -54,12 +54,12 @@ export default function RegisterPage() {
             <div>
               <label className="block text-sm font-medium text-earth-700 mb-1.5">Họ và tên</label>
               <input
-                {...register('name')}
+                {...register('fullName')}
                 type="text"
                 placeholder="Nguyễn Văn A"
                 className="w-full px-4 py-3 rounded-xl border border-earth-200 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm transition-shadow"
               />
-              {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
+              {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>}
             </div>
 
             <div>

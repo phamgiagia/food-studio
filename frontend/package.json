@@ -16,6 +16,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "@food-studio/types": "workspace:*",
+    "@food-studio/utils": "workspace:*",
     "@tanstack/react-query": "^5.50.0",
     "@tanstack/react-query-devtools": "^5.50.0",
     "zustand": "^4.5.0",
