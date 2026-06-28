@@ -3,6 +3,7 @@ import { HeroSection } from '@/components/home/HeroSection';
 import { FeaturedCollections } from '@/components/home/FeaturedCollections';
 import { RegionalDiscovery } from '@/components/home/RegionalDiscovery';
 import { TrendingProducts } from '@/components/home/TrendingProducts';
+import { SocialProof } from '@/components/home/SocialProof';
 import { SellerStories } from '@/components/home/SellerStories';
 import { NewsletterCTA } from '@/components/home/NewsletterCTA';
 
@@ -17,6 +18,7 @@ export default async function HomePage() {
       <FeaturedCollections />
       <RegionalDiscovery />
       <TrendingProducts />
+      <SocialProof />
       <SellerStories />
       <NewsletterCTA />
     </main>

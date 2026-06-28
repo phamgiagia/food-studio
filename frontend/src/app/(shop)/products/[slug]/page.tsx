@@ -4,6 +4,7 @@ import { StarIcon, MapPinIcon, ClockIcon, ShieldCheckIcon } from '@heroicons/rea
 import { StarIcon as StarSolid } from '@heroicons/react/20/solid';
 import { formatPrice } from '@/lib/utils';
 import { AddToCartButton } from '@/components/product/AddToCartButton';
+import { ShippingBadge } from '@/components/product/ShippingBadge';
 import { ReviewList } from '@/components/reviews/ReviewList';
 import { serverProductApi } from '@/lib/server-api';
 import Image from 'next/image';
@@ -142,6 +143,7 @@ export default async function ProductDetailPage({ params }: Props) {
           )}
 
           <AddToCartButton product={cartProduct} />
+          <ShippingBadge />
 
           {/* Trust signals */}
           <div className="mt-6 space-y-3 border-t border-earth-100 pt-6">

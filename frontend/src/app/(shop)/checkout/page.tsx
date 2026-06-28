@@ -8,7 +8,7 @@ import { PROVINCES } from '@food-studio/utils';
 import { useCartStore } from '@/store/cart';
 import { usePlaceOrder } from '@/hooks/useOrders';
 import { formatPrice } from '@/lib/utils';
-import { LockClosedIcon } from '@heroicons/react/24/outline';
+import { LockClosedIcon, GiftIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
 
 const shippingSchema = z.object({
   fullName: z.string().min(2, 'Họ tên tối thiểu 2 ký tự'),
@@ -29,10 +29,27 @@ const paymentMethods = [
   { id: 'cod', label: 'COD', description: 'Thanh toán khi nhận hàng' },
 ] as const;
 
+const todayPlus1 = () => {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().split('T')[0];
+};
+
+const todayPlus14 = () => {
+  const d = new Date();
+  d.setDate(d.getDate() + 14);
+  return d.toISOString().split('T')[0];
+};
+
 export default function CheckoutPage() {
   const { items, totalPrice, totalItems } = useCartStore();
   const placeOrder = usePlaceOrder();
   const [selectedPayment, setSelectedPayment] = useState<'vnpay' | 'momo' | 'zalopay' | 'cod'>('vnpay');
+  const [deliveryDate, setDeliveryDate] = useState('');
+  const [isGift, setIsGift] = useState(false);
+  const [giftRecipient, setGiftRecipient] = useState('');
+  const [giftMessage, setGiftMessage] = useState('');
+  const [hidePrice, setHidePrice] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm<ShippingForm>({
     resolver: zodResolver(shippingSchema),
@@ -58,6 +75,12 @@ export default function CheckoutPage() {
       shippingMethod: 'standard',
       paymentMethod: selectedPayment,
       note: data.note,
+      ...(deliveryDate && { scheduledDate: Math.floor(new Date(deliveryDate).getTime() / 1000) }),
+      ...(isGift && {
+        giftMessage: giftMessage || undefined,
+        giftRecipient: giftRecipient || undefined,
+        hidePrice,
+      }),
     });
   };
 
@@ -95,6 +118,80 @@ export default function CheckoutPage() {
                   <textarea {...register('note')} rows={2} className={inputCls} placeholder="Giao hàng giờ hành chính, gọi trước khi giao..." />
                 </FormField>
               </div>
+            </section>
+
+            {/* Delivery date */}
+            <section className="bg-white border border-earth-100 rounded-2xl p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <CalendarDaysIcon className="w-5 h-5 text-brand-500" />
+                <h2 className="font-semibold text-earth-900">Ngày Giao Hàng Mong Muốn</h2>
+                <span className="text-earth-400 text-xs font-normal">(không bắt buộc)</span>
+              </div>
+              <input
+                type="date"
+                value={deliveryDate}
+                min={todayPlus1()}
+                max={todayPlus14()}
+                onChange={e => setDeliveryDate(e.target.value)}
+                className={`${inputCls} max-w-xs`}
+              />
+              <p className="text-earth-400 text-xs mt-2">
+                Để trống nếu không có yêu cầu cụ thể. Đơn hàng thường giao trong 2–4 ngày làm việc.
+              </p>
+            </section>
+
+            {/* Gift options */}
+            <section className="bg-white border border-earth-100 rounded-2xl p-6">
+              <button
+                type="button"
+                onClick={() => setIsGift(g => !g)}
+                className="flex items-center gap-3 w-full text-left"
+              >
+                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${isGift ? 'bg-brand-500 border-brand-500' : 'border-earth-300'}`}>
+                  {isGift && <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                </div>
+                <div className="flex items-center gap-2">
+                  <GiftIcon className="w-5 h-5 text-brand-500" />
+                  <span className="font-semibold text-earth-900">Đây là quà tặng 🎁</span>
+                </div>
+              </button>
+
+              {isGift && (
+                <div className="mt-4 space-y-3 pl-8">
+                  <div>
+                    <label className="block text-sm font-medium text-earth-700 mb-1.5">Tên người nhận</label>
+                    <input
+                      type="text"
+                      value={giftRecipient}
+                      onChange={e => setGiftRecipient(e.target.value)}
+                      placeholder="Nguyễn Thị B"
+                      className={inputCls}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-earth-700 mb-1.5">
+                      Lời nhắn gửi kèm
+                      <span className="text-earth-400 font-normal ml-1">({giftMessage.length}/200)</span>
+                    </label>
+                    <textarea
+                      value={giftMessage}
+                      onChange={e => setGiftMessage(e.target.value.slice(0, 200))}
+                      rows={3}
+                      placeholder="Chúc mừng sinh nhật! Đây là món quà đặc biệt từ vùng đất..."
+                      className={inputCls}
+                    />
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={hidePrice}
+                      onChange={e => setHidePrice(e.target.checked)}
+                      className="rounded border-earth-300 text-brand-500"
+                    />
+                    <span className="text-sm text-earth-700">Ẩn giá tiền trên hóa đơn</span>
+                  </label>
+                </div>
+              )}
             </section>
 
             {/* Payment method */}

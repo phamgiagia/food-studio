@@ -14,7 +14,7 @@ const links = {
   ],
   'Hỗ trợ': [
     { label: 'Trung tâm hỗ trợ', href: '/help' },
-    { label: 'Chính sách vận chuyển', href: '/shipping-policy' },
+    { label: 'Chính sách vận chuyển', href: '/shipping' },
     { label: 'Chính sách hoàn trả', href: '/return-policy' },
     { label: 'Liên hệ', href: '/contact' },
   ],

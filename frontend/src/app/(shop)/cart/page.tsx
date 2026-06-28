@@ -1,13 +1,38 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { TrashIcon, MinusIcon, PlusIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
+import { TrashIcon, MinusIcon, PlusIcon, ShoppingBagIcon, TagIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 import { useCartStore } from '@/store/cart';
 import { formatPrice } from '@/lib/utils';
+import { checkoutApi } from '@/lib/api';
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, totalItems, totalPrice } = useCartStore();
+  const [couponCode, setCouponCode] = useState('');
+  const [couponState, setCouponState] = useState<{ discount: number; code: string } | null>(null);
+  const [couponError, setCouponError] = useState('');
+  const [couponLoading, setCouponLoading] = useState(false);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setCouponLoading(true);
+    setCouponError('');
+    try {
+      const res = await checkoutApi.applyCoupon(couponCode.trim(), totalPrice());
+      const data = res.data as { discount: number; code: string };
+      setCouponState(data);
+      setCouponCode('');
+    } catch (e: unknown) {
+      setCouponError(e instanceof Error ? e.message : 'Mã không hợp lệ');
+      setCouponState(null);
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const removeCoupon = () => { setCouponState(null); setCouponError(''); };
 
   if (items.length === 0) {
     return (
@@ -107,20 +132,57 @@ export default function CartPage() {
 
           {/* Coupon */}
           <div className="mb-4">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Mã giảm giá"
-                className="flex-1 border border-earth-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-              />
-              <button className="btn-secondary text-sm px-4 py-2">Áp dụng</button>
-            </div>
+            {couponState ? (
+              <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                <div className="flex items-center gap-2 text-green-700 text-sm font-medium">
+                  <CheckCircleIcon className="w-4 h-4" />
+                  <span>{couponState.code} — Giảm {formatPrice(couponState.discount)}</span>
+                </div>
+                <button onClick={removeCoupon} className="text-green-600 hover:text-green-800">
+                  <XCircleIcon className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <TagIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-earth-400" />
+                    <input
+                      type="text"
+                      value={couponCode}
+                      onChange={e => setCouponCode(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleApplyCoupon()}
+                      placeholder="Nhập mã giảm giá"
+                      className="w-full border border-earth-200 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+                    />
+                  </div>
+                  <button
+                    onClick={handleApplyCoupon}
+                    disabled={couponLoading || !couponCode.trim()}
+                    className="btn-secondary text-sm px-4 py-2 disabled:opacity-50"
+                  >
+                    {couponLoading ? '...' : 'Áp dụng'}
+                  </button>
+                </div>
+                {couponError && <p className="text-red-500 text-xs mt-1">{couponError}</p>}
+              </>
+            )}
           </div>
 
-          <div className="border-t border-earth-100 pt-4 mb-5">
-            <div className="flex justify-between font-bold text-earth-900">
+          <div className="border-t border-earth-100 pt-4 mb-5 space-y-2">
+            <div className="flex justify-between text-sm text-earth-500">
+              <span>Tạm tính</span>
+              <span>{formatPrice(totalPrice())}</span>
+            </div>
+            {couponState && (
+              <div className="flex justify-between text-sm text-green-600 font-medium">
+                <span>Giảm giá</span>
+                <span>-{formatPrice(couponState.discount)}</span>
+              </div>
+            )}
+            <div className="flex justify-between font-bold text-earth-900 pt-2 border-t border-earth-100">
               <span>Tổng cộng</span>
-              <span className="text-brand-600">{formatPrice(totalPrice())}</span>
+              <span className="text-brand-600">{formatPrice(totalPrice() - (couponState?.discount ?? 0))}</span>
             </div>
           </div>
 
