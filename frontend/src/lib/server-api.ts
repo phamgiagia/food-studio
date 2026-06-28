@@ -45,6 +45,8 @@ export type ApiPaginated<T> = {
 export const serverProductApi = {
   list: (params?: Record<string, string | number | boolean | undefined>) =>
     serverFetch<ApiPaginated<ApiProduct>>('/products', params).catch(() => ({ products: [], total: 0, page: 1, limit: 24 } as ApiPaginated<ApiProduct>)),
+  getBySlug: (slug: string) =>
+    serverFetch<ApiProduct>(`/products/slug/${slug}`).catch(() => null),
 };
 
 export const serverCategoryApi = {

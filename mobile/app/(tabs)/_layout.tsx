@@ -1,6 +1,18 @@
 import { Tabs } from 'expo-router';
-import { HomeIcon, MagnifyingGlassIcon, ShoppingCartIcon, UserIcon } from 'react-native-heroicons/outline';
+import { Ionicons } from '@expo/vector-icons';
 import { Platform } from 'react-native';
+
+type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
+
+const TAB_SCREENS: {
+  name: string; title: string;
+  icon: IoniconName; iconActive: IoniconName;
+}[] = [
+  { name: 'index',   title: 'Khám Phá',  icon: 'home-outline',    iconActive: 'home' },
+  { name: 'search',  title: 'Tìm Kiếm',  icon: 'search-outline',  iconActive: 'search' },
+  { name: 'cart',    title: 'Giỏ Hàng',  icon: 'cart-outline',    iconActive: 'cart' },
+  { name: 'account', title: 'Tài Khoản', icon: 'person-outline',  iconActive: 'person' },
+];
 
 export default function TabLayout() {
   return (
@@ -18,34 +30,18 @@ export default function TabLayout() {
         tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
       }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Khám Phá',
-          tabBarIcon: ({ color, size }) => <HomeIcon color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="search"
-        options={{
-          title: 'Tìm Kiếm',
-          tabBarIcon: ({ color, size }) => <MagnifyingGlassIcon color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="cart"
-        options={{
-          title: 'Giỏ Hàng',
-          tabBarIcon: ({ color, size }) => <ShoppingCartIcon color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="account"
-        options={{
-          title: 'Tài Khoản',
-          tabBarIcon: ({ color, size }) => <UserIcon color={color} size={size} />,
-        }}
-      />
+      {TAB_SCREENS.map(({ name, title, icon, iconActive }) => (
+        <Tabs.Screen
+          key={name}
+          name={name}
+          options={{
+            title,
+            tabBarIcon: ({ color, size, focused }) => (
+              <Ionicons name={focused ? iconActive : icon} color={color} size={size} />
+            ),
+          }}
+        />
+      ))}
     </Tabs>
   );
 }

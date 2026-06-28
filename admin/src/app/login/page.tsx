@@ -19,7 +19,8 @@ export default function AdminLoginPage() {
       const { token } = await adminApi.auth.login(email, password);
       localStorage.setItem('admin_token', token);
       // Set cookie for middleware auth check (expires 7 days)
-      document.cookie = `admin_token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict`;
+      const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+      document.cookie = `admin_token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict${secure}`;
       const params = new URLSearchParams(window.location.search);
       router.push(params.get('from') ?? '/');
     } catch {
