@@ -1,0 +1,69 @@
+{
+  "common": {
+    "addToCart": "Add to Cart",
+    "buyNow": "Buy Now",
+    "viewAll": "View all",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "noResults": "No results found",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "login": "Log in",
+    "register": "Sign up",
+    "logout": "Log out"
+  },
+  "nav": {
+    "products": "Products",
+    "collections": "Collections",
+    "sellers": "Sellers",
+    "blog": "Blog",
+    "search": "Search...",
+    "cart": "Cart",
+    "account": "Account"
+  },
+  "home": {
+    "hero": {
+      "badge": "Authentic regional flavors",
+      "title": "Vietnam's Authentic Regional Specialties",
+      "subtitle": "Discover thousands of specialties from every corner of Vietnam",
+      "cta": "Explore Now",
+      "ctaSeller": "Meet the Sellers"
+    }
+  },
+  "product": {
+    "origin": "Origin",
+    "shelfLife": "Shelf life",
+    "weight": "Weight",
+    "ingredients": "Ingredients",
+    "storage": "Storage",
+    "reviews": "Reviews",
+    "noReviews": "No reviews yet",
+    "relatedProducts": "Related Products",
+    "addedToCart": "Added to cart"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "shippingInfo": "Shipping Information",
+    "paymentMethod": "Payment Method",
+    "orderSummary": "Order Summary",
+    "placeOrder": "Place Order",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "discount": "Discount",
+    "total": "Total",
+    "couponPlaceholder": "Enter coupon code",
+    "applyCoupon": "Apply"
+  },
+  "account": {
+    "orders": "My Orders",
+    "addresses": "Shipping Addresses",
+    "wishlist": "Wishlist",
+    "loyalty": "Loyalty Points",
+    "settings": "Settings"
+  }
+}

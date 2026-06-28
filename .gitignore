@@ -1,0 +1,45 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs
+.next
+dist
+.expo
+build
+out
+
+# Environment
+.env
+.env.local
+.env.*.local
+.dev.vars
+
+# Cloudflare
+.wrangler
+
+# Cache
+.turbo
+.cache
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode
+.idea
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Testing
+coverage
+.nyc_output
+
+# Misc
+*.tsbuildinfo

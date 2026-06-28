@@ -1,0 +1,45 @@
+{
+  "name": "@food-studio/frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@food-studio/types": "workspace:*",
+    "@tanstack/react-query": "^5.50.0",
+    "@tanstack/react-query-devtools": "^5.50.0",
+    "zustand": "^4.5.0",
+    "react-hook-form": "^7.52.0",
+    "zod": "^3.23.0",
+    "@hookform/resolvers": "^3.9.0",
+    "motion": "^11.3.0",
+    "next-intl": "^3.17.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.4.0",
+    "@heroicons/react": "^2.1.5",
+    "lucide-react": "^0.400.0",
+    "next-themes": "^0.3.0",
+    "sonner": "^1.5.0",
+    "embla-carousel-react": "^8.1.7"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/node": "^20.14.0",
+    "tailwindcss": "^3.4.6",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.39",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^15.0.0"
+  }
+}

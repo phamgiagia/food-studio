@@ -1,0 +1,65 @@
+name = "food-studio-api"
+main = "src/index.ts"
+compatibility_date = "2024-06-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "production"
+CORS_ORIGIN = "https://foodstudio.vn"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "food-studio-db-prod"
+database_id = "REPLACE_WITH_ACTUAL_D1_ID"
+
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "REPLACE_WITH_KV_ID"
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "REPLACE_WITH_KV_CACHE_ID"
+
+[[kv_namespaces]]
+binding = "FEATURE_FLAGS"
+id = "REPLACE_WITH_KV_FLAGS_ID"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "food-studio-media-prod"
+
+[[queues.producers]]
+binding = "ORDER_EVENTS"
+queue = "order-events"
+
+[[queues.producers]]
+binding = "NOTIFICATION_QUEUE"
+queue = "notification-queue"
+
+[[queues.producers]]
+binding = "SEARCH_INDEXING"
+queue = "search-indexing"
+
+[[queues.consumers]]
+queue = "order-events"
+max_batch_size = 10
+max_batch_timeout = 5
+
+[durable_objects]
+bindings = [
+  { name = "CART", class_name = "CartDO" },
+  { name = "INVENTORY_RESERVATION", class_name = "InventoryReservationDO" }
+]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["CartDO", "InventoryReservationDO"]
+
+[env.staging]
+name = "food-studio-api-staging"
+vars = { ENVIRONMENT = "staging", CORS_ORIGIN = "https://staging.foodstudio.vn" }
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "food-studio-db-staging"
+database_id = "REPLACE_WITH_STAGING_D1_ID"

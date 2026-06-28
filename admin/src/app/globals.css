@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --sidebar-width: 240px;
+  }
+  * { @apply border-gray-200; }
+  body { @apply text-sm; }
+}
+
+@layer components {
+  .stat-card {
+    @apply bg-white rounded-xl border p-5 hover:shadow-sm transition-shadow;
+  }
+  .data-table {
+    @apply w-full text-sm;
+  }
+  .data-table th {
+    @apply text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50 border-b;
+  }
+  .data-table td {
+    @apply px-4 py-3 border-b;
+  }
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  .badge-green, .badge-success { @apply badge bg-green-100 text-green-700; }
+  .badge-yellow, .badge-warning { @apply badge bg-yellow-100 text-yellow-700; }
+  .badge-red, .badge-danger { @apply badge bg-red-100 text-red-700; }
+  .badge-gray, .badge-default { @apply badge bg-gray-100 text-gray-600; }
+  .badge-blue, .badge-info { @apply badge bg-blue-100 text-blue-700; }
+}

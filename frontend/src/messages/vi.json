@@ -1,0 +1,69 @@
+{
+  "common": {
+    "addToCart": "Thêm Vào Giỏ",
+    "buyNow": "Mua Ngay",
+    "viewAll": "Xem tất cả",
+    "loading": "Đang tải...",
+    "error": "Có lỗi xảy ra",
+    "retry": "Thử lại",
+    "noResults": "Không tìm thấy kết quả",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "confirm": "Xác nhận",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "login": "Đăng nhập",
+    "register": "Đăng ký",
+    "logout": "Đăng xuất"
+  },
+  "nav": {
+    "products": "Sản Phẩm",
+    "collections": "Bộ Sưu Tập",
+    "sellers": "Nhà Bán Hàng",
+    "blog": "Blog",
+    "search": "Tìm kiếm...",
+    "cart": "Giỏ hàng",
+    "account": "Tài khoản"
+  },
+  "home": {
+    "hero": {
+      "badge": "Hương vị quê hương",
+      "title": "Đặc Sản Vùng Miền Chính Gốc",
+      "subtitle": "Khám phá hàng ngàn đặc sản từ khắp mọi miền đất nước",
+      "cta": "Khám Phá Ngay",
+      "ctaSeller": "Gặp Gỡ Nhà Bán Hàng"
+    }
+  },
+  "product": {
+    "origin": "Xuất xứ",
+    "shelfLife": "Hạn sử dụng",
+    "weight": "Khối lượng",
+    "ingredients": "Thành phần",
+    "storage": "Bảo quản",
+    "reviews": "Đánh giá",
+    "noReviews": "Chưa có đánh giá",
+    "relatedProducts": "Sản Phẩm Tương Tự",
+    "addedToCart": "Đã thêm vào giỏ hàng"
+  },
+  "checkout": {
+    "title": "Thanh Toán",
+    "shippingInfo": "Thông Tin Giao Hàng",
+    "paymentMethod": "Phương Thức Thanh Toán",
+    "orderSummary": "Tóm Tắt Đơn Hàng",
+    "placeOrder": "Đặt Hàng",
+    "subtotal": "Tạm tính",
+    "shipping": "Phí vận chuyển",
+    "discount": "Giảm giá",
+    "total": "Tổng cộng",
+    "couponPlaceholder": "Nhập mã giảm giá",
+    "applyCoupon": "Áp dụng"
+  },
+  "account": {
+    "orders": "Đơn Hàng Của Tôi",
+    "addresses": "Địa Chỉ Giao Hàng",
+    "wishlist": "Danh Sách Yêu Thích",
+    "loyalty": "Điểm Thưởng",
+    "settings": "Cài Đặt"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "@food-studio/backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev src/index.ts",
+    "build": "wrangler deploy --dry-run",
+    "deploy": "wrangler deploy",
+    "deploy:staging": "wrangler deploy --env staging",
+    "type-check": "tsc --noEmit",
+    "db:migrate": "wrangler d1 migrations apply food-studio-db-prod",
+    "db:migrate:staging": "wrangler d1 migrations apply food-studio-db-staging --env staging"
+  },
+  "dependencies": {
+    "hono": "^4.4.0",
+    "@hono/zod-validator": "^0.4.0",
+    "zod": "^3.23.0",
+    "@food-studio/types": "workspace:*",
+    "@food-studio/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "wrangler": "^3.60.0",
+    "typescript": "^5.5.0",
+    "@cloudflare/workers-types": "^4.20240620.0"
+  }
+}

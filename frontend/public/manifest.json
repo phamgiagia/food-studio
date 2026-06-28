@@ -1,0 +1,23 @@
+{
+  "name": "Food Studio - Đặc Sản Vùng Miền",
+  "short_name": "Food Studio",
+  "description": "Khám phá và mua sắm đặc sản vùng miền Việt Nam",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fffbf7",
+  "theme_color": "#f97316",
+  "lang": "vi",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "screenshots": [
+    { "src": "/screenshots/home.png", "sizes": "390x844", "type": "image/png", "form_factor": "narrow" }
+  ],
+  "categories": ["shopping", "food"],
+  "shortcuts": [
+    { "name": "Tìm kiếm", "short_name": "Tìm kiếm", "url": "/search", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Giỏ hàng", "short_name": "Giỏ hàng", "url": "/cart", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
