@@ -1,13 +1,20 @@
 import Link from 'next/link';
+import { serverCategoryApi } from '@/lib/server-api';
 
-const collections = [
+const FALLBACK_COLLECTIONS = [
   { name: 'Quà Tết 2025', slug: 'qua-tet-2025', productCount: 48 },
   { name: 'Hải Sản Miền Trung', slug: 'hai-san-mien-trung', productCount: 32 },
   { name: 'Trà & Cà Phê Tây Nguyên', slug: 'tra-ca-phe-tay-nguyen', productCount: 24 },
   { name: 'Mắm & Đặc Sản Huế', slug: 'mam-dac-san-hue', productCount: 56 },
 ];
 
-export function FeaturedCollections() {
+export async function FeaturedCollections() {
+  const { categories } = await serverCategoryApi.list();
+
+  const collections = categories.length > 0
+    ? categories.slice(0, 4).map(c => ({ name: c.name, slug: c.slug, productCount: null }))
+    : FALLBACK_COLLECTIONS;
+
   return (
     <section className="section-padding bg-white">
       <div className="container-wide">
@@ -32,7 +39,9 @@ export function FeaturedCollections() {
             >
               <div className="w-12 h-12 bg-brand-100 rounded-xl mb-4 group-hover:bg-brand-200 transition-colors" />
               <h3 className="font-semibold text-earth-800 mb-1">{col.name}</h3>
-              <p className="text-earth-400 text-sm">{col.productCount} sản phẩm</p>
+              {col.productCount !== null && (
+                <p className="text-earth-400 text-sm">{col.productCount} sản phẩm</p>
+              )}
             </Link>
           ))}
         </div>

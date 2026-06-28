@@ -12,6 +12,7 @@ import { checkoutRoutes } from './routes/checkout';
 import { reviewRoutes } from './routes/reviews';
 import { mediaRoutes } from './routes/media';
 import { adminRoutes } from './routes/admin';
+import { paymentsRouter } from './routes/payments';
 import { errorHandler } from './middleware/error';
 import { authMiddleware } from './middleware/auth';
 import { CartDO } from './durable-objects/cart';
@@ -35,6 +36,9 @@ app.use('*', cors({
 }));
 
 app.get('/health', (c) => c.json({ status: 'ok', env: c.env.ENVIRONMENT }));
+
+// Payment webhooks — public, no auth middleware
+app.route('/v1/payments', paymentsRouter);
 
 // Public routes
 app.route('/v1/auth', authRoutes);

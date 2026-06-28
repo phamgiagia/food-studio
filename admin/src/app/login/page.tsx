@@ -18,7 +18,10 @@ export default function AdminLoginPage() {
     try {
       const { token } = await adminApi.auth.login(email, password);
       localStorage.setItem('admin_token', token);
-      router.push('/');
+      // Set cookie for middleware auth check (expires 7 days)
+      document.cookie = `admin_token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict`;
+      const params = new URLSearchParams(window.location.search);
+      router.push(params.get('from') ?? '/');
     } catch {
       setError('Email hoặc mật khẩu không đúng');
     } finally {

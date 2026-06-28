@@ -1,20 +1,23 @@
 import Link from 'next/link';
 import { ProductCard } from '@/components/product/ProductCard';
+import { serverProductApi } from '@/lib/server-api';
 
-// Static fallback for SSR — real data comes from API
-const mockProducts = Array.from({ length: 8 }, (_, i) => ({
-  id: `p${i}`,
-  name: ['Mắm Tôm Huế', 'Bánh Phu Thê', 'Cà Phê Buôn Ma Thuột', 'Nước Mắm Phú Quốc', 'Chả Bò Đà Nẵng', 'Bánh Đậu Xanh Hải Dương', 'Mật Ong Rừng Tây Nguyên', 'Bánh Cuốn Hà Nội'][i] ?? `Sản phẩm ${i + 1}`,
-  slug: `san-pham-${i}`,
-  basePrice: (i + 1) * 45000 + 30000,
-  province: ['Thừa Thiên Huế', 'Bắc Ninh', 'Đắk Lắk', 'Kiên Giang', 'Đà Nẵng', 'Hải Dương', 'Gia Lai', 'Hà Nội'][i] ?? 'Việt Nam',
-  rating: 4.2 + (i % 4) * 0.2,
-  reviewCount: 12 + i * 7,
-  images: [],
-  variants: [],
-}));
+export async function TrendingProducts() {
+  const result = await serverProductApi.list({ sort: 'popular', limit: 8 });
+  const products = result.products ?? [];
 
-export function TrendingProducts() {
+  // Fallback static data when API is unavailable (dev / before seed)
+  const fallbackProducts = Array.from({ length: 8 }, (_, i) => ({
+    id: `p${i}`, slug: `san-pham-${i}`,
+    name: ['Mắm Tôm Huế', 'Bánh Phu Thê', 'Cà Phê Buôn Ma Thuột', 'Nước Mắm Phú Quốc', 'Chả Bò Đà Nẵng', 'Bánh Đậu Xanh', 'Mật Ong Rừng', 'Bánh Cuốn Hà Nội'][i] ?? `Sản phẩm ${i + 1}`,
+    base_price: (i + 1) * 45000 + 30000,
+    province: ['Thừa Thiên Huế', 'Bắc Ninh', 'Đắk Lắk', 'Kiên Giang', 'Đà Nẵng', 'Hải Dương', 'Gia Lai', 'Hà Nội'][i] ?? 'Việt Nam',
+    rating_avg: 4.2 + (i % 4) * 0.2, review_count: 12 + i * 7,
+    images: [] as [], variants: [] as [],
+  }));
+
+  const items = products.length > 0 ? products : fallbackProducts;
+
   return (
     <section className="section-padding bg-white">
       <div className="container-wide">
@@ -31,8 +34,16 @@ export function TrendingProducts() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {mockProducts.map((product) => (
-            <ProductCard key={product.id} product={product as Parameters<typeof ProductCard>[0]['product']} />
+          {items.map(p => (
+            <ProductCard key={p.id} product={{
+              id: p.id, name: p.name, slug: p.slug,
+              basePrice: p.base_price,
+              province: p.province, rating: p.rating_avg, reviewCount: p.review_count,
+              images: (p.images ?? []).map((img: { url: string; alt?: string; is_primary: boolean }) => ({
+                ...img, isPrimary: img.is_primary, id: img.url, sortOrder: 0,
+              })),
+              variants: p.variants ?? [],
+            }} />
           ))}
         </div>
       </div>

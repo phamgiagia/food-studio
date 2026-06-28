@@ -2,6 +2,7 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image } fr
 import { useLocalSearchParams, router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { productApi } from '../../src/lib/api';
+import { useCartStore } from '../../src/store/cart';
 import { useState } from 'react';
 
 type Product = {
@@ -19,6 +20,7 @@ export default function ProductDetailScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
+  const addItem = useCartStore(s => s.addItem);
 
   const { data: product, isLoading } = useQuery({
     queryKey: ['product', slug],
@@ -27,7 +29,15 @@ export default function ProductDetailScreen() {
   });
 
   const handleAddToCart = () => {
-    // In production: dispatch to cart store
+    if (!product) return;
+    addItem({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      imageUrl: product.images?.[0]?.url,
+      sellerName: product.seller.name,
+      quantity,
+    });
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
   };

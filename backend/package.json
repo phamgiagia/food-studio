@@ -8,6 +8,8 @@
     "deploy": "wrangler deploy",
     "deploy:staging": "wrangler deploy --env staging",
     "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "db:migrate": "wrangler d1 migrations apply food-studio-db-prod",
     "db:migrate:staging": "wrangler d1 migrations apply food-studio-db-staging --env staging"
   },
@@ -21,6 +23,7 @@
   "devDependencies": {
     "wrangler": "^3.60.0",
     "typescript": "^5.5.0",
-    "@cloudflare/workers-types": "^4.20240620.0"
+    "@cloudflare/workers-types": "^4.20240620.0",
+    "vitest": "^2.0.0"
   }
 }

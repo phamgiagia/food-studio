@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { ProductCard } from '@/components/product/ProductCard';
+import { serverProductApi } from '@/lib/server-api';
 
 export const metadata: Metadata = { title: 'Tìm Kiếm' };
 
@@ -8,11 +9,14 @@ interface SearchParams { q?: string; region?: string; category?: string }
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const params = await searchParams;
-  const query = params.q ?? '';
+  const query = params.q?.trim() ?? '';
 
-  // In production: const results = await productApi.list({ q: query, ...params });
+  const result = query
+    ? await serverProductApi.list({ q: query, region: params.region, category: params.category, limit: 20 })
+    : null;
 
-  const hasQuery = query.length > 0;
+  const products = result?.products ?? [];
+  const total = result?.total ?? 0;
 
   return (
     <div className="container-wide py-10">
@@ -33,7 +37,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
         </form>
       </div>
 
-      {!hasQuery ? (
+      {!query ? (
         <div>
           <h2 className="font-semibold text-earth-700 mb-4 text-center">Tìm Kiếm Phổ Biến</h2>
           <div className="flex flex-wrap gap-2 justify-center">
@@ -48,21 +52,29 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       ) : (
         <div>
           <p className="text-earth-500 mb-6">
-            Kết quả cho: <span className="font-semibold text-earth-900">"{query}"</span>
+            <span className="font-semibold text-earth-900">{total}</span> kết quả cho{' '}
+            "<span className="font-semibold text-earth-900">{query}</span>"
           </p>
-          {/* Placeholder results */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {Array.from({ length: 10 }, (_, i) => (
-              <div key={i} className="product-card animate-pulse">
-                <div className="aspect-square bg-earth-200" />
-                <div className="p-4 space-y-2">
-                  <div className="h-3 bg-earth-200 rounded w-1/2" />
-                  <div className="h-4 bg-earth-200 rounded" />
-                  <div className="h-5 bg-earth-200 rounded w-1/2" />
-                </div>
-              </div>
-            ))}
-          </div>
+
+          {products.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-earth-400 text-lg mb-2">Không tìm thấy sản phẩm nào</p>
+              <p className="text-earth-400 text-sm">Thử tìm với từ khóa khác hoặc xem <a href="/products" className="text-brand-500 hover:underline">tất cả sản phẩm</a></p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {products.map(p => (
+                <ProductCard key={p.id} product={{
+                  id: p.id, name: p.name, slug: p.slug,
+                  basePrice: p.base_price, comparePrice: p.compare_price,
+                  province: p.province, rating: p.rating_avg, reviewCount: p.review_count,
+                  images: (p.images ?? []).map(img => ({ ...img, isPrimary: img.is_primary, id: img.url, sortOrder: 0 })),
+                  variants: p.variants ?? [],
+                  seller: p.seller ? { storeName: p.seller.store_name, slug: p.seller.slug } : undefined,
+                }} />
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
