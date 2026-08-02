@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useLogout } from '@/hooks/useAuth';
 import { useAuthStore } from '@/store/auth';
-import { Button } from '@/components/ui/button';
 
 export function AuthNav() {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
@@ -13,15 +12,17 @@ export function AuthNav() {
   if (!isAuthenticated) {
     return (
       <div className="flex items-center gap-2">
-        <Link href="/auth/login">
-          <Button variant="ghost" size="sm">
-            Đăng nhập
-          </Button>
+        <Link
+          href="/auth/login"
+          className="inline-flex items-center justify-center h-7 rounded-lg px-3 text-sm font-semibold text-earth-700 hover:bg-earth-100 transition-colors"
+        >
+          Đăng nhập
         </Link>
-        <Link href="/auth/register">
-          <Button variant="default" size="sm">
-            Tạo tài khoản
-          </Button>
+        <Link
+          href="/auth/register"
+          className="btn-primary h-7 rounded-lg px-3 text-sm"
+        >
+          Tạo tài khoản
         </Link>
       </div>
     );
