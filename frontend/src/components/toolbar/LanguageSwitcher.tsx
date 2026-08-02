@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 const LOCALES = [
@@ -9,14 +9,11 @@ const LOCALES = [
 ];
 
 function setLocaleCookie(locale: string) {
-  // next-intl request config reads cookie "locale".
-  // Keep it simple: 1 year.
   document.cookie = `locale=${encodeURIComponent(locale)}; path=/; max-age=31536000`;
 }
 
 export function LanguageSwitcher() {
   const router = useRouter();
-  const pathname = usePathname();
   const [current, setCurrent] = useState<'vi' | 'en'>('vi');
 
   useEffect(() => {
@@ -30,7 +27,7 @@ export function LanguageSwitcher() {
   }, []);
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="inline-flex items-center rounded-lg border border-earth-200 bg-earth-50 p-0.5 gap-0">
       {LOCALES.map(l => (
         <button
           key={l.code}
@@ -39,13 +36,12 @@ export function LanguageSwitcher() {
             const nextLocale = l.code as 'vi' | 'en';
             setCurrent(nextLocale);
             setLocaleCookie(nextLocale);
-            // Refresh the page so next-intl can re-resolve messages.
             router.refresh();
           }}
           className={
             current === l.code
-              ? 'text-brand-600 font-semibold text-sm'
-              : 'text-earth-600 hover:text-earth-900 font-medium text-sm'
+              ? 'px-2.5 py-1 text-xs font-semibold text-white bg-brand-500 rounded-md transition-all'
+              : 'px-2.5 py-1 text-xs font-medium text-earth-600 hover:text-earth-900 rounded-md transition-colors'
           }
         >
           {l.label}

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useLogout } from '@/hooks/useAuth';
 import { useAuthStore } from '@/store/auth';
+import { Button } from '@/components/ui/button';
 
 export function AuthNav() {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
@@ -11,18 +12,16 @@ export function AuthNav() {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex items-center gap-3">
-        <Link
-          href="/auth/login"
-          className="text-sm font-semibold text-earth-700 hover:text-earth-900"
-        >
-          Đăng nhập
+      <div className="flex items-center gap-2">
+        <Link href="/auth/login">
+          <Button variant="ghost" size="sm">
+            Đăng nhập
+          </Button>
         </Link>
-        <Link
-          href="/auth/register"
-          className="text-sm font-semibold text-brand-600 hover:text-brand-700"
-        >
-          Tạo tài khoản
+        <Link href="/auth/register">
+          <Button variant="default" size="sm">
+            Tạo tài khoản
+          </Button>
         </Link>
       </div>
     );
@@ -30,14 +29,14 @@ export function AuthNav() {
 
   return (
     <div className="flex items-center gap-3">
-      <div className="hidden sm:block">
+      <div className="hidden sm:block text-right">
         <div className="text-sm font-semibold text-earth-900">{(user as any)?.full_name ?? user?.fullName ?? user?.email ?? 'Tài khoản'}</div>
         <div className="text-xs text-earth-500 -mt-0.5">Đã đăng nhập</div>
       </div>
       <button
         type="button"
         onClick={() => logout.mutate()}
-        className="text-sm font-semibold text-earth-700 hover:text-earth-900"
+        className="text-sm font-semibold text-earth-600 hover:text-red-600 transition-colors"
       >
         Đăng xuất
       </button>
