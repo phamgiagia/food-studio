@@ -1,18 +1,22 @@
 // Server-side fetch helper for Server Components (no token needed for public endpoints)
-const BASE = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8787/v1');
+// NOTE: NEXT_PUBLIC_API_URL is configured as https://api.foodstudio.vn (without /v1)
+// so we must append /v1 for all product/seller endpoints.
+const BASE = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8787');
 
 async function serverFetch<T>(path: string, params?: Record<string, string | number | boolean | undefined>): Promise<T> {
+  const baseUrl = `${BASE}/v1`;
   const url = params
-    ? `${BASE}${path}?${new URLSearchParams(
+    ? `${baseUrl}${path}?${new URLSearchParams(
         Object.fromEntries(
           Object.entries(params)
             .filter(([, v]) => v !== undefined)
             .map(([k, v]) => [k, String(v)])
         )
       )}`
-    : `${BASE}${path}`;
+    : `${baseUrl}${path}`;
 
-  const res = await fetch(url, { next: { revalidate: 60 } });
+  // 'next' option is supported by Next.js fetch, but not always typed depending on TS config.
+  const res = await fetch(url as unknown as RequestInfo, { next: { revalidate: 60 } } as RequestInit);
   if (!res.ok) throw new Error(`API error ${res.status}: ${path}`);
   const json = await res.json() as { ok: boolean; data: T };
   return json.data;

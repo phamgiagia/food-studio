@@ -74,17 +74,22 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
               {params.q ? <>Kết quả cho "<span className="font-semibold text-earth-800">{params.q}</span>": </> : ''}
               <span className="font-semibold text-earth-800">{total}</span> sản phẩm
             </p>
-            <form>
+            <form className="flex items-center gap-2" method="get" action="/products">
               {params.category && <input type="hidden" name="category" value={params.category} />}
               {params.region && <input type="hidden" name="region" value={params.region} />}
               {params.q && <input type="hidden" name="q" value={params.q} />}
               <select name="sort" defaultValue={params.sort ?? 'newest'}
-                onChange={(e) => { (e.currentTarget.closest('form') as HTMLFormElement)?.requestSubmit(); }}
                 className="text-sm border border-earth-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500">
                 {sortOptions.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </select>
+              <button
+                type="submit"
+                className="text-sm rounded-lg border border-earth-200 px-3 py-2 text-earth-700 transition-colors hover:bg-earth-50"
+              >
+                Áp dụng
+              </button>
             </form>
           </div>
 
