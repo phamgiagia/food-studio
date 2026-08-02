@@ -3,10 +3,10 @@
   "private": true,
   "version": "0.1.0",
   "description": "Enterprise regional specialty marketplace (đặc sản vùng miền)",
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "pnpm@10.6.5",
   "engines": {
     "node": ">=20.0.0",
-    "pnpm": ">=9.0.0"
+    "pnpm": ">=10.0.0"
   },
   "scripts": {
     "dev": "turbo run dev",
