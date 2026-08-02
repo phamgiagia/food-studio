@@ -1,6 +1,6 @@
 {
   "installCommand": "corepack enable pnpm && pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm build",
+  "buildCommand": "pnpm --filter @food-studio/frontend build",
   "framework": "nextjs",
   "outputDirectory": "frontend/.next"
 }
