@@ -17,6 +17,7 @@ export interface Env {
   // Secrets
   JWT_SECRET: string;
   JWT_REFRESH_SECRET: string;
+  SENTRY_DSN: string;
   VNPAY_TMN_CODE: string;
   VNPAY_SECRET_KEY: string;
   MOMO_PARTNER_CODE: string;

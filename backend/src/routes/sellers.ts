@@ -97,3 +97,90 @@ sellerRoutes.get('/me/stats', authMiddleware, requireRole('seller'), async (c) =
     totalRevenue: revenue?.total ?? 0,
   }));
 });
+
+// ── Seller: Analytics dashboard ──────────────────────────
+sellerRoutes.get('/me/analytics', authMiddleware, requireRole('seller'), async (c) => {
+  const userId = c.get('userId');
+  const seller = await c.env.DB.prepare('SELECT id, store_name, slug, rating, review_count FROM seller_profiles WHERE user_id = ?').bind(userId).first<{
+    id: string; store_name: string; slug: string; rating: number | null; review_count: number;
+  }>();
+  if (!seller) throw new AppError('NOT_FOUND', 'Seller not found', 404);
+
+  const sid = seller.id;
+
+  // Monthly revenue for last 12 months
+  const monthlyRevenue = await c.env.DB.prepare(
+    `SELECT strftime('%Y-%m', o.created_at, 'unixepoch') as month,
+            SUM(oi.total_price) as revenue, COUNT(oi.id) as orders
+     FROM order_items oi
+     JOIN orders o ON oi.order_id = o.id
+     WHERE oi.seller_id = ? AND o.status IN ('delivered', 'shipped')
+       AND o.created_at >= unixepoch('now', '-12 months')
+     GROUP BY month ORDER BY month`
+  ).bind(sid).all();
+
+  // Orders by status
+  const ordersByStatus = await c.env.DB.prepare(
+    `SELECT oi.status, COUNT(*) as count
+     FROM order_items oi
+     WHERE oi.seller_id = ?
+     GROUP BY oi.status`
+  ).bind(sid).all();
+
+  // Top products by revenue (top 10)
+  const topProducts = await c.env.DB.prepare(
+    `SELECT oi.product_id, oi.product_name, COUNT(*) as sold, SUM(oi.total_price) as revenue
+     FROM order_items oi
+     WHERE oi.seller_id = ? AND oi.status = 'delivered'
+     GROUP BY oi.product_id ORDER BY revenue DESC LIMIT 10`
+  ).bind(sid).all();
+
+  // Low stock products
+  const lowStock = await c.env.DB.prepare(
+    `SELECT p.id, p.name, p.slug, p.base_price, inv.quantity
+     FROM products p
+     JOIN inventory inv ON inv.product_id = p.id
+     WHERE p.seller_id = ? AND p.status = 'active' AND inv.quantity <= inv.low_stock_alert
+     ORDER BY inv.quantity ASC LIMIT 20`
+  ).bind(sid).all();
+
+  // Recent orders (last 10)
+  const recentOrders = await c.env.DB.prepare(
+    `SELECT oi.*, o.created_at as order_date, o.status as order_status
+     FROM order_items oi
+     JOIN orders o ON oi.order_id = o.id
+     WHERE oi.seller_id = ?
+     ORDER BY o.created_at DESC LIMIT 10`
+  ).bind(sid).all();
+
+  // Subscription offers
+  const subscriptions = await c.env.DB.prepare(
+    `SELECT sso.*, sp.name as plan_name
+     FROM seller_subscription_offers sso
+     JOIN subscription_plans sp ON sso.plan_id = sp.id
+     WHERE sso.seller_id = ?`
+  ).bind(sid).all();
+
+  // Active subscribers
+  const activeSubs = await c.env.DB.prepare(
+    `SELECT COUNT(*) as count FROM subscriptions s
+     JOIN seller_subscription_offers sso ON s.seller_offer_id = sso.id
+     WHERE sso.seller_id = ? AND s.status = 'active'`
+  ).bind(sid).first<{ count: number }>();
+
+  return c.json(ok({
+    seller: {
+      storeName: seller.store_name,
+      slug: seller.slug,
+      rating: seller.rating,
+      reviewCount: seller.review_count,
+    },
+    monthlyRevenue: monthlyRevenue.results,
+    ordersByStatus: ordersByStatus.results,
+    topProducts: topProducts.results,
+    lowStock: lowStock.results,
+    recentOrders: recentOrders.results,
+    subscriptions: subscriptions.results,
+    activeSubscribers: activeSubs?.count ?? 0,
+  }));
+});

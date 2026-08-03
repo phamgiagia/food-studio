@@ -175,3 +175,59 @@ productRoutes.patch('/:id', authMiddleware, requireRole('seller', 'admin', 'supe
 
   return c.json(ok({ id }));
 });
+
+// ── Seller: List own products ────────────────────────────
+productRoutes.get('/seller', authMiddleware, requireRole('seller', 'admin', 'super_admin'), async (c) => {
+  const userId = c.get('userId');
+  const page = Number(c.req.query('page') ?? 1);
+  const limit = Number(c.req.query('limit') ?? 50);
+  const offset = (page - 1) * limit;
+
+  const seller = await c.env.DB.prepare(
+    'SELECT id FROM seller_profiles WHERE user_id = ?'
+  ).bind(userId).first<{ id: string }>();
+  if (!seller) throw new AppError('NOT_FOUND', 'Seller profile not found', 404);
+
+  const [count, products] = await Promise.all([
+    c.env.DB.prepare('SELECT COUNT(*) as total FROM products WHERE seller_id = ?').bind(seller.id).first<{ total: number }>(),
+    c.env.DB.prepare(
+      `SELECT p.*, c.name as category_name,
+              (SELECT pi.url FROM product_images pi WHERE pi.product_id = p.id AND pi.is_primary = 1 LIMIT 1) as primary_image,
+              inv.quantity as stock, inv.low_stock_alert, inv.quantity - inv.reserved as available
+       FROM products p
+       LEFT JOIN categories c ON p.category_id = c.id
+       LEFT JOIN inventory inv ON inv.product_id = p.id
+       WHERE p.seller_id = ?
+       ORDER BY p.created_at DESC LIMIT ? OFFSET ?`
+    ).bind(seller.id, limit, offset).all(),
+  ]);
+
+  return c.json(paginated(products.results, page, limit, count?.total ?? 0));
+});
+
+// ── Seller: Update inventory ─────────────────────────────
+productRoutes.patch('/:id/inventory', authMiddleware, requireRole('seller', 'admin', 'super_admin'), async (c) => {
+  const userId = c.get('userId');
+  const productId = c.req.param('id');
+  const { quantity, lowStockAlert } = await c.req.json<{ quantity?: number; lowStockAlert?: number }>();
+
+  const product = await c.env.DB.prepare('SELECT seller_id FROM products WHERE id = ?').bind(productId).first<{ seller_id: string }>();
+  if (!product) throw new AppError('NOT_FOUND', 'Product not found', 404);
+
+  const seller = await c.env.DB.prepare("SELECT id FROM seller_profiles WHERE user_id = ? AND status = 'approved'").bind(userId).first<{ id: string }>();
+  if (!seller || seller.id !== product.seller_id) throw new AppError('FORBIDDEN', 'Not your product', 403);
+
+  if (quantity !== undefined) {
+    await c.env.DB.prepare(
+      `INSERT INTO inventory (id, product_id, quantity, reserved, low_stock_alert, updated_at)
+       VALUES (lower(hex(randomblob(16))), ?, ?, 0, COALESCE(?, 10), unixepoch())
+       ON CONFLICT(product_id) DO UPDATE SET quantity = ?, updated_at = unixepoch()`
+    ).bind(productId, quantity, lowStockAlert ?? null, quantity).run();
+  } else if (lowStockAlert !== undefined) {
+    await c.env.DB.prepare(
+      'UPDATE inventory SET low_stock_alert = ?, updated_at = unixepoch() WHERE product_id = ?'
+    ).bind(lowStockAlert, productId).run();
+  }
+
+  return c.json(ok({ productId, quantity, lowStockAlert }));
+});

@@ -61,6 +61,11 @@ export const productApi = {
     api.get('/products', params) as Promise<PaginatedResponse<unknown>>,
   get: (id: string) => api.get(`/products/${id}`),
   getBySlug: (slug: string) => api.get(`/products/slug/${slug}`),
+  // Seller: manage own products
+  sellerList: (params?: Record<string, string | number | boolean | undefined>) =>
+    api.get('/products/seller', params) as Promise<PaginatedResponse<unknown>>,
+  create: (data: unknown) => api.post('/products', data),
+  update: (id: string, data: unknown) => api.patch(`/products/${id}`, data),
 };
 
 export const sellerApi = {
@@ -69,6 +74,7 @@ export const sellerApi = {
   apply: (data: unknown) => api.post('/sellers/apply', data),
   me: () => api.get('/sellers/me'),
   stats: () => api.get('/sellers/me/stats'),
+  analytics: () => api.get('/sellers/me/analytics'),
 };
 
 export const authApi = {

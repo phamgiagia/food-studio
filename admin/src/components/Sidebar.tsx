@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import {
   HomeIcon, ShoppingBagIcon, UserGroupIcon, TruckIcon,
   TagIcon, ChartBarIcon, ShieldCheckIcon, DocumentTextIcon,
-  CogIcon, ArchiveBoxIcon, BanknotesIcon,
+  CogIcon, ArchiveBoxIcon, BanknotesIcon, ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 
@@ -17,8 +17,10 @@ const navItems = [
   { label: 'Khách hàng', href: '/customers', icon: UserGroupIcon },
   { label: 'Vận chuyển', href: '/shipping', icon: TruckIcon },
   { label: 'Khuyến mãi', href: '/promotions', icon: TagIcon },
+  { label: 'Quà tặng (Gift Card)', href: '/gift-cards', icon: BanknotesIcon },
   { label: 'Tài chính', href: '/finance', icon: BanknotesIcon },
   { label: 'Analytics', href: '/analytics', icon: ChartBarIcon },
+  { label: 'Đăng ký định kỳ', href: '/subscriptions', icon: ArrowPathIcon },
   { label: 'Chống gian lận', href: '/fraud', icon: ShieldCheckIcon },
   { label: 'CMS', href: '/cms', icon: DocumentTextIcon },
   { label: 'Cài đặt', href: '/settings', icon: CogIcon },

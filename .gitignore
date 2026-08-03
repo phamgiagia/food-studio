@@ -43,3 +43,10 @@ coverage
 
 # Misc
 *.tsbuildinfo
+
+# shadcn artifacts
+components.json
+
+# nested dirs from accidental shadcn init
+admin/admin/
+admin/frontend/

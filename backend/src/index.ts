@@ -14,6 +14,10 @@ import { mediaRoutes } from './routes/media';
 import { adminRoutes } from './routes/admin';
 import { paymentsRouter } from './routes/payments';
 import { wishlistRoutes } from './routes/wishlists';
+import { subscriptionRoutes } from './routes/subscriptions';
+import { giftCardRoutes } from './routes/gift-cards';
+import { loyaltyRoutes } from './routes/loyalty';
+import { monitoringMiddleware } from './middleware/monitoring';
 import { errorHandler } from './middleware/error';
 import { authMiddleware } from './middleware/auth';
 import { CartDO } from './durable-objects/cart';
@@ -35,6 +39,7 @@ app.use('*', cors({
   allowHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
+app.use('*', monitoringMiddleware);
 
 app.get('/health', (c) => c.json({ status: 'ok', env: c.env.ENVIRONMENT }));
 
@@ -62,6 +67,15 @@ app.route('/v1/wishlists', wishlistRoutes);
 
 // Admin routes (auth + role check inside)
 app.route('/v1/admin', adminRoutes);
+
+// Subscription routes
+app.route('/v1/subscriptions', subscriptionRoutes);
+
+// Gift card routes
+app.route('/v1/gift-cards', giftCardRoutes);
+
+// Loyalty routes
+app.route('/v1/loyalty', loyaltyRoutes);
 
 app.onError(errorHandler);
 app.notFound((c) => c.json({ data: null, error: { code: 'NOT_FOUND', message: 'Route not found' } }, 404));

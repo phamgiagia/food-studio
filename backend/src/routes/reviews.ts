@@ -73,6 +73,13 @@ reviewRoutes.post('/', authMiddleware, zValidator('json', createSchema), async (
      WHERE id = ?`
   ).bind(data.productId, data.productId, data.productId).run();
 
+  // Mark review prompt as reviewed
+  if (data.orderId) {
+    await c.env.DB.prepare(
+      "UPDATE review_prompts SET reviewed = 1, reviewed_at = unixepoch() WHERE product_id = ? AND order_id = ? AND user_id = ?"
+    ).bind(data.productId, data.orderId, userId).run();
+  }
+
   return c.json(ok({ id }), 201);
 });
 
@@ -80,4 +87,47 @@ reviewRoutes.post('/:id/helpful', authMiddleware, async (c) => {
   const id = c.req.param('id');
   await c.env.DB.prepare('UPDATE reviews SET helpful = helpful + 1 WHERE id = ?').bind(id).run();
   return c.json(ok({ message: 'Marked as helpful' }));
+});
+
+// ── User: My reviews ─────────────────────────────────────
+reviewRoutes.get('/my', authMiddleware, async (c) => {
+  const userId = c.get('userId');
+
+  const reviews = await c.env.DB.prepare(
+    `SELECT r.*, p.name as product_name, p.slug as product_slug, p.base_price
+     FROM reviews r
+     JOIN products p ON r.product_id = p.id
+     WHERE r.user_id = ?
+     ORDER BY r.created_at DESC`
+  ).bind(userId).all();
+
+  return c.json(ok(reviews.results));
+});
+
+// ── User: Pending reviews (products I bought but haven't reviewed) ──
+reviewRoutes.get('/pending', authMiddleware, async (c) => {
+  const userId = c.get('userId');
+
+  const pending = await c.env.DB.prepare(
+    `SELECT rp.*, p.slug as product_slug, p.base_price,
+            p.rating as product_rating, p.review_count as product_review_count
+     FROM review_prompts rp
+     JOIN products p ON rp.product_id = p.id
+     WHERE rp.user_id = ? AND rp.reviewed = 0 AND rp.dismissed = 0
+     ORDER BY rp.triggered_at DESC`
+  ).bind(userId).all();
+
+  return c.json(ok(pending.results));
+});
+
+// ── User: Dismiss a review prompt ────────────────────────
+reviewRoutes.post('/dismiss/:id', authMiddleware, async (c) => {
+  const userId = c.get('userId');
+  const id = c.req.param('id');
+
+  await c.env.DB.prepare(
+    "UPDATE review_prompts SET dismissed = 1 WHERE id = ? AND user_id = ?"
+  ).bind(id, userId).run();
+
+  return c.json(ok({ message: 'Dismissed' }));
 });

@@ -4,6 +4,7 @@ import { UserIcon, ShoppingBagIcon, MapPinIcon, HeartIcon, StarIcon, Cog6ToothIc
 const accountNav = [
   { href: '/account', label: 'Hồ Sơ', icon: UserIcon },
   { href: '/account/orders', label: 'Đơn Hàng', icon: ShoppingBagIcon },
+  { href: '/account/reviews', label: 'Đánh Giá', icon: StarIcon },
   { href: '/account/addresses', label: 'Địa Chỉ', icon: MapPinIcon },
   { href: '/account/wishlist', label: 'Yêu Thích', icon: HeartIcon },
   { href: '/account/loyalty', label: 'Điểm Thưởng', icon: StarIcon },

@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { HandThumbUpIcon } from '@heroicons/react/24/outline';
+import { HandThumbUpIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import { StarRating, InteractiveStarRating } from './StarRating';
 import { useReviews, useCreateReview } from '@/hooks/useReviews';
 import { useAuthStore } from '@/store/auth';
 import { formatDate } from '@/lib/utils';
+import { api } from '@/lib/api';
 
 interface ReviewListProps {
   productId: string;
@@ -27,6 +28,8 @@ export function ReviewList({ productId, rating = 0, reviewCount = 0 }: ReviewLis
   const [page, setPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ rating: 5, title: '', body: '' });
+  const [reviewImages, setReviewImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
   const { data, isLoading } = useReviews(productId, page);
   const createReview = useCreateReview();
@@ -36,9 +39,29 @@ export function ReviewList({ productId, rating = 0, reviewCount = 0 }: ReviewLis
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await createReview.mutateAsync({ productId, ...formData });
+    await createReview.mutateAsync({ productId, ...formData, images: reviewImages.length > 0 ? reviewImages : undefined });
     setShowForm(false);
     setFormData({ rating: 5, title: '', body: '' });
+    setReviewImages([]);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files?.length) return;
+    setUploading(true);
+    try {
+      for (const file of Array.from(files).slice(0, 5 - reviewImages.length)) {
+        const fd = new FormData();
+        fd.append('file', file);
+        const res = await api.post<{ url: string }>('/media/upload', fd) as unknown as { data: { url: string } };
+        setReviewImages(prev => [...prev, res.data.url]);
+      }
+    } catch (err) {
+      console.error('Upload failed:', err);
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
   };
 
   // Rating distribution (simplified)
@@ -106,6 +129,29 @@ export function ReviewList({ productId, rating = 0, reviewCount = 0 }: ReviewLis
             value={formData.body}
             onChange={e => setFormData(p => ({ ...p, body: e.target.value }))}
           />
+
+          {/* Image upload */}
+          <div>
+            <label className="flex items-center gap-2 cursor-pointer text-sm text-earth-600 hover:text-brand-600 transition-colors">
+              <PhotoIcon className="w-5 h-5" />
+              <span>{uploading ? 'Đang tải ảnh...' : 'Thêm hình ảnh (tối đa 5 ảnh)'}</span>
+              <input type="file" accept="image/*" multiple onChange={handleImageUpload}
+                className="hidden" disabled={uploading || reviewImages.length >= 5} />
+            </label>
+            {reviewImages.length > 0 && (
+              <div className="flex gap-2 mt-2 flex-wrap">
+                {reviewImages.map((url, i) => (
+                  <div key={i} className="relative group">
+                    <img src={url} alt="" className="w-16 h-16 rounded-xl object-cover border border-earth-200" />
+                    <button onClick={() => setReviewImages(prev => prev.filter((_, j) => j !== i))}
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <div className="flex gap-3">
             <button type="submit" className="btn-primary" disabled={createReview.isPending}>
               {createReview.isPending ? 'Đang gửi...' : 'Gửi Đánh Giá'}

@@ -9,11 +9,12 @@ adminRoutes.use('*', authMiddleware, requireRole('admin', 'super_admin', 'staff'
 
 // Dashboard KPIs
 adminRoutes.get('/analytics/overview', async (c) => {
-  const [orders, revenue, sellers, users] = await Promise.all([
+  const [orders, revenue, sellers, users, subscriptions] = await Promise.all([
     c.env.DB.prepare("SELECT COUNT(*) as count FROM orders WHERE status != 'cancelled'").first<{ count: number }>(),
     c.env.DB.prepare("SELECT SUM(total) as sum FROM orders WHERE status = 'delivered'").first<{ sum: number }>(),
     c.env.DB.prepare("SELECT COUNT(*) as count FROM seller_profiles WHERE status = 'approved'").first<{ count: number }>(),
     c.env.DB.prepare("SELECT COUNT(*) as count FROM users WHERE role = 'customer'").first<{ count: number }>(),
+    c.env.DB.prepare("SELECT COUNT(*) as count FROM subscriptions WHERE status = 'active'").first<{ count: number }>(),
   ]);
 
   return c.json(ok({
@@ -21,6 +22,7 @@ adminRoutes.get('/analytics/overview', async (c) => {
     totalRevenue: revenue?.sum ?? 0,
     activeSellers: sellers?.count ?? 0,
     totalCustomers: users?.count ?? 0,
+    activeSubscriptions: subscriptions?.count ?? 0,
   }));
 });
 
@@ -122,4 +124,96 @@ adminRoutes.patch('/products/:id/status', requireRole('admin', 'super_admin', 's
   const { status } = await c.req.json<{ status: string }>();
   await c.env.DB.prepare('UPDATE products SET status = ?, updated_at = unixepoch() WHERE id = ?').bind(status, id).run();
   return c.json(ok({ message: 'Product status updated' }));
+});
+
+// ── Subscriptions ────────────────────────────────────────
+adminRoutes.get('/subscriptions', async (c) => {
+  const page = Number(c.req.query('page') ?? 1);
+  const limit = Number(c.req.query('limit') ?? 20);
+  const status = c.req.query('status');
+  const offset = (page - 1) * limit;
+
+  const conditions: string[] = [];
+  const bindings: (string | number)[] = [];
+  if (status) { conditions.push('s.status = ?'); bindings.push(status); }
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  const [count, subs] = await Promise.all([
+    c.env.DB.prepare(`SELECT COUNT(*) as total FROM subscriptions s ${where}`).bind(...bindings).first<{ total: number }>(),
+    c.env.DB.prepare(
+      `SELECT s.*, u.full_name as user_name, u.email as user_email,
+              sp.name as plan_name, sl.store_name
+       FROM subscriptions s
+       JOIN users u ON s.user_id = u.id
+       JOIN seller_subscription_offers sso ON s.seller_offer_id = sso.id
+       JOIN subscription_plans sp ON sso.plan_id = sp.id
+       JOIN seller_profiles sl ON sso.seller_id = sl.id
+       ${where}
+       ORDER BY s.created_at DESC LIMIT ? OFFSET ?`
+    ).bind(...bindings, limit, offset).all(),
+  ]);
+
+  return c.json(paginated(subs.results, page, limit, count?.total ?? 0));
+});
+
+adminRoutes.patch('/subscriptions/:id', async (c) => {
+  const id = c.req.param('id');
+  const { action } = await c.req.json<{ action: string }>();
+
+  const sub = await c.env.DB.prepare('SELECT id, status FROM subscriptions WHERE id = ?').bind(id).first<{ id: string; status: string }>();
+  if (!sub) return c.json({ data: null, error: { code: 'NOT_FOUND', message: 'Subscription not found' } }, 404);
+
+  const validActions: Record<string, string[]> = {
+    pause: ['active'],
+    resume: ['paused'],
+    cancel: ['active', 'paused'],
+  };
+
+  if (!validActions[action]?.includes(sub.status)) {
+    return c.json({ data: null, error: { code: 'INVALID_ACTION', message: `Cannot ${action} a ${sub.status} subscription` } }, 400);
+  }
+
+  const statusMap: Record<string, string> = { pause: 'paused', resume: 'active', cancel: 'cancelled' };
+  const newStatus = statusMap[action];
+
+  await c.env.DB.prepare(
+    action === 'cancel'
+      ? "UPDATE subscriptions SET status = ?, cancelled_at = unixepoch(), updated_at = unixepoch() WHERE id = ?"
+      : "UPDATE subscriptions SET status = ?, updated_at = unixepoch() WHERE id = ?"
+  ).bind(newStatus, id).run();
+
+  return c.json(ok({ id, status: newStatus }));
+});
+
+// ── Subscription plans (admin) ───────────────────────────
+adminRoutes.get('/subscription-plans', async (c) => {
+  const plans = await c.env.DB.prepare('SELECT * FROM subscription_plans ORDER BY sort_order').all();
+  return c.json(ok(plans.results));
+});
+
+// ── Gift Cards (admin) ───────────────────────────────────
+adminRoutes.get('/gift-cards', async (c) => {
+  const page = Number(c.req.query('page') ?? 1);
+  const limit = Number(c.req.query('limit') ?? 20);
+  const status = c.req.query('status');
+  const offset = (page - 1) * limit;
+
+  const conditions: string[] = [];
+  const bindings: (string | number)[] = [];
+  if (status) { conditions.push('gc.status = ?'); bindings.push(status); }
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  const [count, cards] = await Promise.all([
+    c.env.DB.prepare(`SELECT COUNT(*) as total FROM gift_cards gc ${where}`).bind(...bindings).first<{ total: number }>(),
+    c.env.DB.prepare(
+      `SELECT gc.*, u.full_name as buyer_name, gct.name as template_name
+       FROM gift_cards gc
+       JOIN users u ON gc.buyer_id = u.id
+       LEFT JOIN gift_card_templates gct ON gc.template_id = gct.id
+       ${where}
+       ORDER BY gc.created_at DESC LIMIT ? OFFSET ?`
+    ).bind(...bindings, limit, offset).all(),
+  ]);
+
+  return c.json(paginated(cards.results, page, limit, count?.total ?? 0));
 });

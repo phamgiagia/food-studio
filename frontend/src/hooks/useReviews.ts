@@ -13,7 +13,7 @@ export function useReviews(productId: string, page = 1) {
 export function useCreateReview() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: { productId: string; rating: number; title?: string; body?: string; orderId?: string }) =>
+    mutationFn: (data: { productId: string; rating: number; title?: string; body?: string; orderId?: string; images?: string[] }) =>
       reviewApi.create(data),
     onSuccess: async (_, vars) => {
       await qc.invalidateQueries({ queryKey: ['reviews', vars.productId] });
