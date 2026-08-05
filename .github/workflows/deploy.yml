@@ -91,12 +91,13 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: '${{ env.NODE_VERSION }}', cache: 'pnpm' }
       - run: pnpm install --frozen-lockfile
-      - name: Deploy to Vercel
+      - name: Deploy to Cloudflare Workers
         run: |
           cd frontend
-          npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
+          pnpm run deploy
         env:
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
   deploy-admin:
     name: Deploy Admin
@@ -110,9 +111,12 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: '${{ env.NODE_VERSION }}', cache: 'pnpm' }
       - run: pnpm install --frozen-lockfile
-      - name: Deploy Admin to Vercel
+      - name: Deploy Admin to Cloudflare Workers
         run: |
           cd admin
-          npx vercel --prod --token=${{ secrets.VERCEL_TOKEN_ADMIN }}
+          pnpm run deploy
         env:
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # VERCEL_TOKEN / VERCEL_TOKEN_ADMIN repo secrets are no longer used
+          # and can be removed from GitHub settings.

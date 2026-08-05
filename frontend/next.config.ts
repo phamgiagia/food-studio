@@ -10,6 +10,7 @@ const config: NextConfig = {
       { protocol: 'https', hostname: '*.r2.cloudflarestorage.com' },
     ],
     formats: ['image/avif', 'image/webp'],
+    unoptimized: true,
   },
 };
 

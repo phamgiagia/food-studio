@@ -17,6 +17,7 @@ out
 
 # Cloudflare
 .wrangler
+.open-next
 
 # Cache
 .turbo

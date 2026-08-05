@@ -10,19 +10,20 @@ CORS_ORIGIN = "https://foodstudio.vn"
 [[d1_databases]]
 binding = "DB"
 database_name = "food-studio-db-prod"
-database_id = "REPLACE_WITH_ACTUAL_D1_ID"
+database_id = "1f7b60a1-09ce-4e61-8d31-ffd0a135e5c4"
+migrations_dir = "src/db/migrations"
 
 [[kv_namespaces]]
 binding = "SESSIONS"
-id = "REPLACE_WITH_KV_ID"
+id = "9362092b020341a986f6c5254975f2a1"
 
 [[kv_namespaces]]
 binding = "CACHE"
-id = "REPLACE_WITH_KV_CACHE_ID"
+id = "4bb1e1a3c82b412e815658eac787b9c7"
 
 [[kv_namespaces]]
 binding = "FEATURE_FLAGS"
-id = "REPLACE_WITH_KV_FLAGS_ID"
+id = "621a38ccbf7744738b30438a4316b3ff"
 
 [[r2_buckets]]
 binding = "MEDIA"
@@ -34,11 +35,11 @@ queue = "order-events"
 
 [[queues.producers]]
 binding = "NOTIFICATION_QUEUE"
-queue = "notification-queue"
+queue = "food-studio-notification-queue"
 
 [[queues.producers]]
 binding = "SEARCH_INDEXING"
-queue = "search-indexing"
+queue = "food-studio-search-indexing"
 
 [[queues.consumers]]
 queue = "order-events"
@@ -62,4 +63,4 @@ vars = { ENVIRONMENT = "staging", CORS_ORIGIN = "https://staging.foodstudio.vn" 
 [[env.staging.d1_databases]]
 binding = "DB"
 database_name = "food-studio-db-staging"
-database_id = "REPLACE_WITH_STAGING_D1_ID"
+database_id = "73e4cb21-d81f-43f0-907b-6a567ec964cb"

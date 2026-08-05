@@ -5,6 +5,7 @@ const config: NextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'media.foodstudio.vn' },
     ],
+    unoptimized: true,
   },
 };
 
