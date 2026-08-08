@@ -1,7 +1,8 @@
 import { Hono } from 'hono';
 import type { Env } from '../types/env';
 import { authMiddleware, requireRole } from '../middleware/auth';
-import { ok, paginated } from '../middleware/error';
+import { ok, paginated, AppError } from '../middleware/error';
+import { confirmCorporateOrderPayment } from './corporate-orders';
 
 export const adminRoutes = new Hono<{ Bindings: Env }>();
 
@@ -216,4 +217,38 @@ adminRoutes.get('/gift-cards', async (c) => {
   ]);
 
   return c.json(paginated(cards.results, page, limit, count?.total ?? 0));
+});
+
+// ── Corporate/bulk gifting (admin) ───────────────────────
+adminRoutes.get('/corporate-orders', async (c) => {
+  const page = Number(c.req.query('page') ?? 1);
+  const limit = Number(c.req.query('limit') ?? 20);
+  const status = c.req.query('status');
+  const offset = (page - 1) * limit;
+
+  const conditions: string[] = [];
+  const bindings: (string | number)[] = [];
+  if (status) { conditions.push('co.status = ?'); bindings.push(status); }
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  const [count, orders] = await Promise.all([
+    c.env.DB.prepare(`SELECT COUNT(*) as total FROM corporate_orders co ${where}`).bind(...bindings).first<{ total: number }>(),
+    c.env.DB.prepare(
+      `SELECT co.*, u.full_name as buyer_name, u.email as buyer_email, p.name as product_name
+       FROM corporate_orders co
+       JOIN users u ON co.user_id = u.id
+       JOIN products p ON co.product_id = p.id
+       ${where}
+       ORDER BY co.created_at DESC LIMIT ? OFFSET ?`
+    ).bind(...bindings, limit, offset).all(),
+  ]);
+
+  return c.json(paginated(orders.results, page, limit, count?.total ?? 0));
+});
+
+adminRoutes.patch('/corporate-orders/:id/confirm-payment', requireRole('admin', 'super_admin', 'finance'), async (c) => {
+  const id = c.req.param('id');
+  if (!id) throw new AppError('BAD_REQUEST', 'id param is required', 400);
+  const result = await confirmCorporateOrderPayment(c.env, id);
+  return c.json(ok({ id, status: 'confirmed', ordersConfirmed: result.orderCount }));
 });

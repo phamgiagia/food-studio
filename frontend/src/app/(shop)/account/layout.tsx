@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { UserIcon, ShoppingBagIcon, MapPinIcon, HeartIcon, StarIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { UserIcon, ShoppingBagIcon, MapPinIcon, HeartIcon, StarIcon, GiftIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 
 const accountNav = [
   { href: '/account', label: 'Hồ Sơ', icon: UserIcon },
@@ -8,6 +8,7 @@ const accountNav = [
   { href: '/account/addresses', label: 'Địa Chỉ', icon: MapPinIcon },
   { href: '/account/wishlist', label: 'Yêu Thích', icon: HeartIcon },
   { href: '/account/loyalty', label: 'Điểm Thưởng', icon: StarIcon },
+  { href: '/account/referrals', label: 'Giới Thiệu Bạn Bè', icon: GiftIcon },
   { href: '/account/settings', label: 'Cài Đặt', icon: Cog6ToothIcon },
 ];
 

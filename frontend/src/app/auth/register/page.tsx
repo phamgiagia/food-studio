@@ -1,11 +1,15 @@
 'use client';
 
+import { Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useQuery } from '@tanstack/react-query';
 import { useRegister } from '@/hooks/useAuth';
+import { referralApi } from '@/lib/api';
+import { GiftIcon } from '@heroicons/react/24/outline';
 
 const schema = z.object({
   fullName: z.string().min(2, 'Tên tối thiểu 2 ký tự'),
@@ -19,15 +23,33 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function RegisterPage() {
+  return (
+    <Suspense>
+      <RegisterForm />
+    </Suspense>
+  );
+}
+
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const referralCode = searchParams.get('ref') ?? undefined;
   const { mutate: registerUser, isPending, error } = useRegister();
+
+  const { data: referralInfo } = useQuery({
+    queryKey: ['referral-validate', referralCode],
+    queryFn: () => referralApi.validate(referralCode!),
+    enabled: !!referralCode,
+    staleTime: Infinity,
+  });
+  const referrerName = (referralInfo?.data as { valid: boolean; referrerName?: string } | undefined)?.referrerName;
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
 
   const onSubmit = ({ fullName, email, password }: FormData) => {
-    registerUser({ fullName, email, password }, {
+    registerUser({ fullName, email, password, referralCode }, {
       onSuccess: () => router.push('/'),
     });
   };
@@ -44,6 +66,12 @@ export default function RegisterPage() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-earth-100 p-8">
+          {referrerName && (
+            <div className="bg-brand-50 border border-brand-200 text-brand-700 rounded-xl px-4 py-3 mb-6 text-sm flex items-center gap-2">
+              <GiftIcon className="w-5 h-5 shrink-0" />
+              <span><strong>{referrerName}</strong> đã giới thiệu bạn — hoàn tất đơn hàng đầu tiên để nhận ngay 50.000đ!</span>
+            </div>
+          )}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 mb-6 text-sm">
               Email đã được sử dụng. Vui lòng thử email khác.

@@ -78,7 +78,7 @@ export const sellerApi = {
 };
 
 export const authApi = {
-  register: (data: { email: string; password: string; fullName: string; phone?: string }) =>
+  register: (data: { email: string; password: string; fullName: string; phone?: string; referralCode?: string }) =>
     api.post('/auth/register', data),
   login: (data: { email: string; password: string }) =>
     api.post<{ accessToken: string; refreshToken: string; expiresAt: number }>('/auth/login', data),
@@ -111,4 +111,21 @@ export const wishlistApi = {
   list: () => api.get<unknown[]>('/wishlists/me'),
   add: (productId: string) => api.post('/wishlists', { productId }),
   remove: (productId: string) => api.delete(`/wishlists/${productId}`),
+};
+
+export const referralApi = {
+  me: () => api.get('/referrals/me'),
+  validate: (code: string) => api.get<{ valid: boolean; referrerName?: string }>('/referrals/validate', { code }),
+};
+
+export const corporateOrderApi = {
+  create: (data: unknown) => api.post('/corporate-orders', data),
+  mine: () => api.get('/corporate-orders/mine'),
+  get: (id: string) => api.get(`/corporate-orders/${id}`),
+};
+
+export const eGiftApi = {
+  send: (data: unknown) => api.post('/e-gifts', data),
+  validate: (code: string) => api.get(`/e-gifts/validate/${code}`),
+  redeem: (code: string, data: unknown) => api.post(`/e-gifts/${code}/redeem`, data),
 };

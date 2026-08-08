@@ -6,6 +6,8 @@ const links = {
     { label: 'Miền Bắc', href: '/products?region=north' },
     { label: 'Miền Trung', href: '/products?region=central' },
     { label: 'Miền Nam', href: '/products?region=south' },
+    { label: 'Quà tặng doanh nghiệp', href: '/corporate-gifting' },
+    { label: 'Gửi quà qua email', href: '/gift/send' },
   ],
   'Nhà bán hàng': [
     { label: 'Tất cả cửa hàng', href: '/sellers' },

@@ -17,6 +17,9 @@ import { wishlistRoutes } from './routes/wishlists';
 import { subscriptionRoutes } from './routes/subscriptions';
 import { giftCardRoutes } from './routes/gift-cards';
 import { loyaltyRoutes } from './routes/loyalty';
+import { referralRoutes } from './routes/referrals';
+import { corporateOrderRoutes } from './routes/corporate-orders';
+import { eGiftRoutes } from './routes/e-gifts';
 import { monitoringMiddleware } from './middleware/monitoring';
 import { errorHandler } from './middleware/error';
 import { authMiddleware } from './middleware/auth';
@@ -76,6 +79,15 @@ app.route('/v1/gift-cards', giftCardRoutes);
 
 // Loyalty routes
 app.route('/v1/loyalty', loyaltyRoutes);
+
+// Referral routes
+app.route('/v1/referrals', referralRoutes);
+
+// Corporate/bulk gifting routes
+app.route('/v1/corporate-orders', corporateOrderRoutes);
+
+// E-Gift ("Send by Email") routes
+app.route('/v1/e-gifts', eGiftRoutes);
 
 app.onError(errorHandler);
 app.notFound((c) => c.json({ data: null, error: { code: 'NOT_FOUND', message: 'Route not found' } }, 404));

@@ -4,6 +4,7 @@ import { z } from 'zod';
 import type { Env } from '../types/env';
 import { signJwt, authMiddleware } from '../middleware/auth';
 import { ok, AppError } from '../middleware/error';
+import { applyReferralOnRegister } from './referrals';
 
 export const authRoutes = new Hono<{ Bindings: Env }>();
 
@@ -12,6 +13,7 @@ const registerSchema = z.object({
   password: z.string().min(8),
   fullName: z.string().min(2).max(100),
   phone: z.string().optional(),
+  referralCode: z.string().optional(),
 });
 
 const loginSchema = z.object({
@@ -20,7 +22,7 @@ const loginSchema = z.object({
 });
 
 authRoutes.post('/register', zValidator('json', registerSchema), async (c) => {
-  const { email, password, fullName, phone } = c.req.valid('json');
+  const { email, password, fullName, phone, referralCode } = c.req.valid('json');
 
   const existing = await c.env.DB.prepare(
     'SELECT id FROM users WHERE email = ?'
@@ -32,8 +34,12 @@ authRoutes.post('/register', zValidator('json', registerSchema), async (c) => {
   const userId = crypto.randomUUID().replace(/-/g, '');
 
   await c.env.DB.prepare(
-    'INSERT INTO users (id, email, phone, full_name, role, status) VALUES (?, ?, ?, ?, ?, ?)'
-  ).bind(userId, email, phone ?? null, fullName, 'customer', 'active').run();
+    'INSERT INTO users (id, email, phone, full_name, password_hash, role, status) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  ).bind(userId, email, phone ?? null, fullName, passwordHash, 'customer', 'active').run();
+
+  await applyReferralOnRegister(c.env, referralCode, userId).catch(err =>
+    console.error('[Auth] Failed to apply referral code:', err)
+  );
 
   const [accessToken, refreshToken] = await Promise.all([
     signJwt({ sub: userId, email, role: 'customer' }, c.env.JWT_SECRET, 900),

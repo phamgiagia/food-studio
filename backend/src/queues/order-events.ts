@@ -1,5 +1,6 @@
 import type { Env } from '../types/env';
 import { earnPointsForOrder } from '../routes/loyalty';
+import { rewardReferralIfEligible } from '../routes/referrals';
 
 export async function handleOrderEvents(
   batch: MessageBatch<Record<string, unknown>>,
@@ -41,15 +42,26 @@ async function onOrderCreated(event: Record<string, unknown>, env: Env) {
 }
 
 async function onPaymentSucceeded(event: Record<string, unknown>, env: Env) {
+  const orderId = event['orderId'] as string;
+
   await env.DB.prepare(
     "UPDATE orders SET status = 'confirmed', updated_at = unixepoch() WHERE id = ?"
-  ).bind(event['orderId']).run();
+  ).bind(orderId).run();
 
   await env.NOTIFICATION_QUEUE.send({
     type: 'email',
     template: 'new_order_seller',
-    data: { orderId: event['orderId'] },
+    data: { orderId },
   });
+
+  // Reward referral (referrer + referred) if this was the referred user's first paid order
+  try {
+    const order = await env.DB.prepare('SELECT user_id FROM orders WHERE id = ?')
+      .bind(orderId).first<{ user_id: string }>();
+    if (order) await rewardReferralIfEligible(env, order.user_id, orderId);
+  } catch (err) {
+    console.error('[Queue] Failed to process referral reward:', err);
+  }
 }
 
 /**

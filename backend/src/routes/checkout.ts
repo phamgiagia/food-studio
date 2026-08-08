@@ -4,6 +4,7 @@ import { z } from 'zod';
 import type { Env } from '../types/env';
 import { authMiddleware } from '../middleware/auth';
 import { ok, AppError } from '../middleware/error';
+import { getShippingFee } from '../lib/ghn';
 
 export const checkoutRoutes = new Hono<{ Bindings: Env }>();
 
@@ -17,6 +18,8 @@ const placeOrderSchema = z.object({
   shippingMethod: z.string(),
   couponCode: z.string().optional(),
   giftMessage: z.string().max(500).optional(),
+  giftRecipient: z.string().max(200).optional(),
+  hidePrice: z.boolean().optional(),
   scheduledDate: z.number().optional(),
   paymentMethod: z.enum(['vnpay', 'momo', 'zalopay', 'cod']),
   note: z.string().max(500).optional(),
@@ -36,13 +39,14 @@ checkoutRoutes.post('/place', authMiddleware, zValidator('json', placeOrderSchem
   const productIds = body.items.map(i => i.productId);
   const placeholders = productIds.map(() => '?').join(',');
   const products = await c.env.DB.prepare(
-    `SELECT p.id, p.name, p.base_price, p.seller_id, p.status,
+    `SELECT p.id, p.name, p.base_price, p.seller_id, p.status, p.weight_grams,
             COALESCE(inv.quantity - inv.reserved, 0) as available_stock
      FROM products p
      LEFT JOIN inventory inv ON inv.product_id = p.id
      WHERE p.id IN (${placeholders})`
   ).bind(...productIds).all<{
-    id: string; name: string; base_price: number; seller_id: string; status: string; available_stock: number;
+    id: string; name: string; base_price: number; seller_id: string; status: string;
+    weight_grams: number | null; available_stock: number;
   }>();
 
   const productMap = Object.fromEntries(products.results.map(p => [p.id, p]));
@@ -77,7 +81,18 @@ checkoutRoutes.post('/place', authMiddleware, zValidator('json', placeOrderSchem
     if (coupon.max_discount) discount = Math.min(discount, coupon.max_discount);
   }
 
-  const shippingFee = 30000; // Simplified — real: call GHN API
+  const totalWeightGrams = body.items.reduce((sum, item) => {
+    const p = productMap[item.productId]!;
+    return sum + (p.weight_grams ?? 300) * item.quantity;
+  }, 0);
+
+  const { fee: shippingFee } = await getShippingFee(c.env, {
+    province: String(address['province']),
+    district: String(address['district']),
+    ward: address['ward'] ? String(address['ward']) : undefined,
+    weightGrams: totalWeightGrams,
+    insuranceValue: subtotal,
+  });
   const total = subtotal - discount + shippingFee;
 
   // 4. Create order (atomic via D1 batch)
@@ -92,11 +107,12 @@ checkoutRoutes.post('/place', authMiddleware, zValidator('json', placeOrderSchem
   const stmts = [
     c.env.DB.prepare(
       `INSERT INTO orders (id, user_id, status, subtotal, shipping_fee, discount, total,
-        shipping_address, coupon_code, gift_message, scheduled_date, note)
-       VALUES (?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        shipping_address, coupon_code, gift_message, gift_recipient_name, hide_price, scheduled_date, note)
+       VALUES (?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).bind(orderId, userId, subtotal, shippingFee, discount, total,
       shippingAddressJson, body.couponCode ?? null,
-      body.giftMessage ?? null, body.scheduledDate ?? null, body.note ?? null),
+      body.giftMessage ?? null, body.giftRecipient ?? null, body.hidePrice ? 1 : 0,
+      body.scheduledDate ?? null, body.note ?? null),
     ...body.items.map(item => {
       const p = productMap[item.productId]!;
       const itemId = crypto.randomUUID().replace(/-/g, '');

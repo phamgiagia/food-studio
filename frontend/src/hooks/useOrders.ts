@@ -23,8 +23,11 @@ export function useCancelOrder() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => orderApi.cancel(id),
-    onSuccess: async () => {
-      await qc.invalidateQueries({ queryKey: ['orders'] });
+    onSuccess: async (_res, id) => {
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ['orders'] }),
+        qc.invalidateQueries({ queryKey: ['order', id] }),
+      ]);
       toast.success('Đơn hàng đã được hủy');
     },
     onError: () => toast.error('Không thể hủy đơn hàng'),

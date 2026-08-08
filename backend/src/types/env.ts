@@ -28,6 +28,8 @@ export interface Env {
   ZALOPAY_KEY2: string;
   SENDGRID_KEY: string;
   GHN_TOKEN: string;
+  GHN_SHOP_ID: string;
+  GHN_FROM_DISTRICT_ID: string;
   // Vars
   ENVIRONMENT: string;
   CORS_ORIGIN: string;

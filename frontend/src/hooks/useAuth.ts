@@ -42,7 +42,7 @@ export function useRegister() {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: (data: { email: string; password: string; fullName: string; phone?: string }) =>
+    mutationFn: (data: { email: string; password: string; fullName: string; phone?: string; referralCode?: string }) =>
       authApi.register(data),
     onSuccess: () => {
       router.push('/auth/login');
